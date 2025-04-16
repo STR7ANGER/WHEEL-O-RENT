@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { useState, useRef, useEffect } from "react";
 import { assets } from "./../assets/assets";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/authContext";
 
 const Navbar = () => {
   const [isHovering, setIsHovering] = useState(false);
@@ -84,7 +84,7 @@ const Navbar = () => {
         >
           Listings
         </a>
-        
+
         {isAuthenticated ? (
           <div className="relative" ref={menuRef}>
             <button
@@ -95,7 +95,7 @@ const Navbar = () => {
                 {user?.name?.charAt(0).toUpperCase() || "U"}
               </div>
             </button>
-            
+
             {/* Dropdown Menu */}
             {isMenuOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-gray-900 rounded-md shadow-lg py-1 z-50">

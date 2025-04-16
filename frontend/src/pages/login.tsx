@@ -1,7 +1,7 @@
 import { assets } from "./../assets/assets";
 import GridDistortion from "@/blocks/Backgrounds/GridDistortion/GridDistortion";
 import { useState } from "react";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/authContext";
 import { useNavigate, useLocation } from "react-router-dom";
 
 interface LocationState {
@@ -15,21 +15,21 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   const from = (location.state as LocationState)?.from?.pathname || "/";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setIsLoading(true);
-    
+
     try {
       const success = await login(email, password);
-      
+
       if (success) {
         navigate(from, { replace: true });
       } else {
@@ -134,7 +134,9 @@ const Login = () => {
               type="submit"
               disabled={isLoading}
               className={`w-full rounded-md bg-indigo-600 p-3 text-center font-medium text-white transition-colors ${
-                isLoading ? "bg-indigo-800 cursor-not-allowed" : "hover:bg-indigo-700"
+                isLoading
+                  ? "bg-indigo-800 cursor-not-allowed"
+                  : "hover:bg-indigo-700"
               } focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-900`}
             >
               {isLoading ? "Signing in..." : "Sign in"}
@@ -143,7 +145,10 @@ const Login = () => {
 
           <div className="mt-6 text-center text-sm text-gray-400">
             Don't have an account?{" "}
-            <a href="/signup" className="font-medium text-indigo-400 hover:text-indigo-300">
+            <a
+              href="/signup"
+              className="font-medium text-indigo-400 hover:text-indigo-300"
+            >
               Sign up
             </a>
           </div>

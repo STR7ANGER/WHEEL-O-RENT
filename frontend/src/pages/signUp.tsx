@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { assets } from "./../assets/assets";
 import GridDistortion from "@/blocks/Backgrounds/GridDistortion/GridDistortion";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/authContext";
 import { useNavigate } from "react-router-dom";
 
 const SignUp = () => {
@@ -12,34 +12,39 @@ const SignUp = () => {
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const { signup } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    
+
     // Validation
     if (password !== confirmPassword) {
       setError("Passwords do not match");
       return;
     }
-    
+
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters long");
+      return;
+    }
+
     if (!agreeTerms) {
       setError("You must agree to the Terms and Privacy Policy");
       return;
     }
-    
+
     setIsLoading(true);
-    
+
     try {
       const success = await signup(name, email, password);
-      
+
       if (success) {
         navigate("/");
       } else {
-        setError("Failed to create account");
+        setError("Failed to create account. Email may already be in use.");
       }
     } catch (err) {
       setError("An error occurred during signup");
@@ -171,7 +176,9 @@ const SignUp = () => {
               type="submit"
               disabled={isLoading}
               className={`w-full rounded-md bg-indigo-600 p-3 text-center font-medium text-white transition-colors ${
-                isLoading ? "bg-indigo-800 cursor-not-allowed" : "hover:bg-indigo-700"
+                isLoading
+                  ? "bg-indigo-800 cursor-not-allowed"
+                  : "hover:bg-indigo-700"
               } focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-900`}
             >
               {isLoading ? "Creating Account..." : "Create Account"}

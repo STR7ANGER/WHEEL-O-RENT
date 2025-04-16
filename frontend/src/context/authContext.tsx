@@ -1,10 +1,13 @@
 // src/context/AuthContext.tsx
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
 
+// Get API URL from environment variables
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
 interface User {
   name: string;
   email: string;
-  // Add any other user properties you need
+  userId: string;
 }
 
 interface AuthContextType {
@@ -46,22 +49,35 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      // Here you would normally make an API call to your backend
-      // This is a mock implementation
+      const response = await fetch(`${API_BASE_URL}/api/user/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
       
-      // Mock successful login for demonstration
-      const mockUser = {
-        name: email.split('@')[0], // Just using part of email as name for demo
-        email: email,
-      };
-      
-      // Store authentication data
-      localStorage.setItem('token', 'mock-jwt-token');
-      localStorage.setItem('user', JSON.stringify(mockUser));
-      
-      setIsAuthenticated(true);
-      setUser(mockUser);
-      return true;
+      if (data.success) {
+        // Store authentication data
+        localStorage.setItem('token', data.token);
+        
+        const userData = {
+          name: data.name,
+          email: email,
+          userId: data.userId
+        };
+        
+        localStorage.setItem('user', JSON.stringify(userData));
+        
+        setIsAuthenticated(true);
+        setUser(userData);
+        return true;
+      } else {
+        console.error('Login failed:', data.message);
+        return false;
+      }
     } catch (error) {
       console.error('Login failed:', error);
       return false;
@@ -70,22 +86,36 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const signup = async (name: string, email: string, password: string): Promise<boolean> => {
     try {
-      // Here you would normally make an API call to your backend
-      // This is a mock implementation
+      const response = await fetch(`${API_BASE_URL}/api/user/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name, email, password }),
+      });
+
+      const data = await response.json();
       
-      // Create a new user
-      const newUser = {
-        name,
-        email,
-      };
-      
-      // Store authentication data
-      localStorage.setItem('token', 'mock-jwt-token');
-      localStorage.setItem('user', JSON.stringify(newUser));
-      
-      setIsAuthenticated(true);
-      setUser(newUser);
-      return true;
+      if (data.success) {
+        // Store authentication data
+        localStorage.setItem('token', data.token);
+        
+        // The registration endpoint might not return user ID, so we'll handle it accordingly
+        const userData = {
+          name: name,
+          email: email,
+          userId: data.userId || '' // The user ID might be included in the response
+        };
+        
+        localStorage.setItem('user', JSON.stringify(userData));
+        
+        setIsAuthenticated(true);
+        setUser(userData);
+        return true;
+      } else {
+        console.error('Signup failed:', data.message);
+        return false;
+      }
     } catch (error) {
       console.error('Signup failed:', error);
       return false;
