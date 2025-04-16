@@ -3,9 +3,9 @@ import cors from "cors";
 import "dotenv/config";
 import connectDB from "./config/mongodb.js";
 import connectCloudinary from "./config/cloudinary.js";
-import bookingRouter from "./routes/bookingRoute";
-import userRouter from "./routes/userRoute";
-import carRouter from "./routes/carRoute";
+import bookingRouter from "./routes/bookingRoute.js";
+import userRouter from "./routes/userRoute.js";
+import carRouter from "./routes/carRoute.js";
 
 //App config
 const app = express();

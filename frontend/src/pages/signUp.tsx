@@ -1,7 +1,54 @@
+import { useState } from "react";
 import { assets } from "./../assets/assets";
 import GridDistortion from "@/blocks/Backgrounds/GridDistortion/GridDistortion";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const SignUp = () => {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [agreeTerms, setAgreeTerms] = useState(false);
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  
+  const { signup } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    
+    // Validation
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+    
+    if (!agreeTerms) {
+      setError("You must agree to the Terms and Privacy Policy");
+      return;
+    }
+    
+    setIsLoading(true);
+    
+    try {
+      const success = await signup(name, email, password);
+      
+      if (success) {
+        navigate("/");
+      } else {
+        setError("Failed to create account");
+      }
+    } catch (err) {
+      setError("An error occurred during signup");
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="relative h-screen w-full overflow-hidden bg-black">
       {/* Grid Distortion Background - Full screen and underneath everything */}
@@ -24,7 +71,13 @@ const SignUp = () => {
             <p className="text-gray-400">Create your account</p>
           </div>
 
-          <form className="space-y-6">
+          {error && (
+            <div className="mb-4 p-3 bg-red-900/50 border border-red-500 rounded-md text-red-200 text-sm">
+              {error}
+            </div>
+          )}
+
+          <form className="space-y-6" onSubmit={handleSubmit}>
             <div className="space-y-2">
               <label
                 htmlFor="name"
@@ -35,8 +88,11 @@ const SignUp = () => {
               <input
                 type="text"
                 id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
                 className="w-full rounded-md border border-gray-700 bg-gray-900/70 p-3 text-white placeholder-gray-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
                 placeholder="John Doe"
+                required
               />
             </div>
 
@@ -50,8 +106,11 @@ const SignUp = () => {
               <input
                 type="email"
                 id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="w-full rounded-md border border-gray-700 bg-gray-900/70 p-3 text-white placeholder-gray-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
                 placeholder="your@email.com"
+                required
               />
             </div>
 
@@ -65,8 +124,11 @@ const SignUp = () => {
               <input
                 type="password"
                 id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 className="w-full rounded-md border border-gray-700 bg-gray-900/70 p-3 text-white placeholder-gray-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
                 placeholder="••••••••"
+                required
               />
             </div>
 
@@ -80,8 +142,11 @@ const SignUp = () => {
               <input
                 type="password"
                 id="confirmPassword"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
                 className="w-full rounded-md border border-gray-700 bg-gray-900/70 p-3 text-white placeholder-gray-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
                 placeholder="••••••••"
+                required
               />
             </div>
 
@@ -89,7 +154,10 @@ const SignUp = () => {
               <input
                 id="terms"
                 type="checkbox"
+                checked={agreeTerms}
+                onChange={(e) => setAgreeTerms(e.target.checked)}
                 className="h-4 w-4 rounded border-gray-700 bg-gray-900 text-indigo-500 focus:ring-indigo-500/50"
+                required
               />
               <label
                 htmlFor="terms"
@@ -101,9 +169,12 @@ const SignUp = () => {
 
             <button
               type="submit"
-              className="w-full rounded-md bg-indigo-600 p-3 text-center font-medium text-white transition-colors hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+              disabled={isLoading}
+              className={`w-full rounded-md bg-indigo-600 p-3 text-center font-medium text-white transition-colors ${
+                isLoading ? "bg-indigo-800 cursor-not-allowed" : "hover:bg-indigo-700"
+              } focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-900`}
             >
-              Create Account
+              {isLoading ? "Creating Account..." : "Create Account"}
             </button>
           </form>
 

@@ -1,5 +1,5 @@
 import bookingModel from "../models/bookingModel.js";
-import carModel from "../models/carModel.js";
+import carModel from "../models/carsModel.js";
 
 const addBooking = async (req, res) => {
     try {
