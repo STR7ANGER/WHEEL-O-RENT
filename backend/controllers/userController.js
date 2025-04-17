@@ -97,8 +97,10 @@ const registerUser = async (req, res) => {
 
     return res.status(201).json({
       success: true,
-      token,
       message: "User registered successfully",
+      token,
+      userId: user._id.toString(),
+      name: user.name,
     });
   } catch (error) {
     return res.status(500).json({
@@ -107,6 +109,5 @@ const registerUser = async (req, res) => {
     });
   }
 };
-
 
 export { loginUser, registerUser };

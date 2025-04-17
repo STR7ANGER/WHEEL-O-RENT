@@ -3,13 +3,21 @@ import carModel from "../models/carsModel.js";
 
 const addCar = async (req, res) => {
     try {
-        const { name, description, price, location, category } = req.body;
+        const { name, description, price, location, category, userId } = req.body;
         
         // Validate required fields (except image since we'll get it from files now)
         if (!name || !description || !price || !location || !category) {
             return res.status(400).json({
                 success: false,
                 message: "All fields are required"
+            });
+        }
+        
+        // Verify userId exists (should be added by auth middleware)
+        if (!userId) {
+            return res.status(400).json({
+                success: false,
+                message: "User authentication required"
             });
         }
         
@@ -24,13 +32,21 @@ const addCar = async (req, res) => {
             (item) => item !== undefined
         );
         
+        // Ensure at least one image is provided
+        if (images.length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: "At least one image is required"
+            });
+        }
+        
         // Upload images to Cloudinary and get URLs
         let imagesURL = await Promise.all(
             images.map(async (item) => {
-                let result = await cloudinary.uploader.upload(item.path, {
-                    resource_type: "image",
-                });
-                return result.secure_url;
+              let result = await cloudinary.uploader.upload(item.path, {
+                resource_type: "image",
+              });
+              return result.secure_url;
             })
         );
         
@@ -43,6 +59,7 @@ const addCar = async (req, res) => {
             location,
             category,
             date: Date.now(),
+            userId, // Include the userId
         });
         
         // Save to database

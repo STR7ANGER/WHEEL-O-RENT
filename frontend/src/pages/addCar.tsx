@@ -1,9 +1,42 @@
-import { useState } from "react";
-import { Camera, MapPin, Tag, DollarSign, Type, FileText } from "lucide-react";
+import { useState, FormEvent, ChangeEvent } from "react";
+import {
+  Camera,
+  MapPin,
+  Tag,
+  DollarSign,
+  Type,
+  FileText,
+  Loader,
+} from "lucide-react";
 import { RetroGrid } from "@/components/magicui/retro-grid";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+
+// Define TypeScript interfaces
+interface FormDataState {
+  name: string;
+  description: string;
+  price: string;
+  location: string;
+  category: string;
+}
+
+interface ImagesState {
+  image1: File | null;
+  image2: File | null;
+  image3: File | null;
+  image4: File | null;
+}
+
+interface UserData {
+  name: string;
+  email: string;
+  userId: string;
+}
 
 const AddCar = () => {
-  const [formData, setFormData] = useState({
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState<FormDataState>({
     name: "",
     description: "",
     price: "",
@@ -11,14 +44,20 @@ const AddCar = () => {
     category: "Sedan",
   });
 
-  const [images, setImages] = useState({
+  const [images, setImages] = useState<ImagesState>({
     image1: null,
     image2: null,
     image3: null,
     image4: null,
   });
 
-  const handleChange = (e) => {
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>("");
+  const [success, setSuccess] = useState<string>("");
+
+  const handleChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setFormData((prevState) => ({
       ...prevState,
@@ -26,21 +65,104 @@ const AddCar = () => {
     }));
   };
 
-  const handleImageChange = (e) => {
+  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { id, files } = e.target;
-    setImages((prev) => ({
-      ...prev,
-      [id]: files[0],
-    }));
+    if (files && files.length > 0) {
+      setImages((prev) => ({
+        ...prev,
+        [id]: files[0],
+      }));
+    }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Form submitted:", {
-      ...formData,
-      imagesCount: Object.values(images).filter(Boolean).length,
-    });
-    // Add your form submission logic here
+    setLoading(true);
+    setError("");
+    setSuccess("");
+
+    // Check if at least one image is uploaded
+    if (!images.image1 && !images.image2 && !images.image3 && !images.image4) {
+      setError("Please upload at least one image");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      // Get token from localStorage
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        setError("You must be logged in to list a car");
+        setLoading(false);
+        return;
+      }
+
+      // Get userId from the user object in localStorage
+      let userId = "";
+      const userDataString = localStorage.getItem("user");
+
+      if (userDataString) {
+        try {
+          const userData: UserData = JSON.parse(userDataString);
+          userId = userData.userId;
+        } catch (err) {
+          console.error("Error parsing user data:", err);
+          // Continue anyway as the middleware will extract userId from token
+        }
+      }
+
+      // Create FormData object to send multipart/form-data
+      const formDataToSend = new FormData();
+
+      // Add text fields
+      formDataToSend.append("name", formData.name);
+      formDataToSend.append("description", formData.description);
+      formDataToSend.append("price", formData.price);
+      formDataToSend.append("location", formData.location);
+      formDataToSend.append("category", formData.category);
+
+      // Add userId if we got it from localStorage
+      if (userId) {
+        formDataToSend.append("userId", userId);
+      }
+
+      // Add images (only the ones that were selected)
+      Object.keys(images).forEach((key) => {
+        const imageKey = key as keyof ImagesState;
+        if (images[imageKey]) {
+          formDataToSend.append(key, images[imageKey] as File);
+        }
+      });
+
+      // Make API request with token in headers
+      const response = await axios.post(
+        `${
+          import.meta.env.VITE_API_URL || "http://localhost:8000"
+        }/api/car/add`,
+        formDataToSend,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            // FormData will automatically set the correct Content-Type
+          },
+        }
+      );
+
+      // Handle success
+      setSuccess("Car listed successfully!");
+      console.log("Car added:", response.data);
+
+      // Redirect after successful submission (optional)
+      setTimeout(() => {
+        navigate("/my-listings");
+      }, 2000);
+    } catch (err) {
+      console.error("Error adding car:", err);
+      setError("Failed to add car. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -55,6 +177,18 @@ const AddCar = () => {
         <div className="py-4 px-6 rounded-t-lg">
           <h1 className="text-2xl font-bold text-center">LIST YOUR CAR</h1>
         </div>
+
+        {error && (
+          <div className="mx-6 mb-4 p-3 bg-red-900/50 border border-red-500 rounded text-red-200">
+            {error}
+          </div>
+        )}
+
+        {success && (
+          <div className="mx-6 mb-4 p-3 bg-green-900/50 border border-green-500 rounded text-green-200">
+            {success}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           <div className="space-y-1">
@@ -82,7 +216,7 @@ const AddCar = () => {
               name="description"
               value={formData.description}
               onChange={handleChange}
-              rows="3"
+              rows={3}
               className="w-full border border-amber-500 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-amber-500 bg-gray-900 text-white"
               placeholder="Describe your car's condition, features, etc."
               required
@@ -93,11 +227,11 @@ const AddCar = () => {
           <div className="space-y-1">
             <label className="flex items-center text-sm font-medium">
               <Camera className="w-5 h-5 mr-2 text-amber-500" />
-              Images
+              Images (at least one required)
             </label>
             <div className="flex gap-4 flex-wrap mt-2">
               {[1, 2, 3, 4].map((num) => {
-                const imageKey = `image${num}`;
+                const imageKey = `image${num}` as keyof ImagesState;
                 return (
                   <label
                     key={imageKey}
@@ -112,7 +246,7 @@ const AddCar = () => {
                         ) : (
                           <img
                             className="w-full h-full object-cover rounded-lg"
-                            src={URL.createObjectURL(images[imageKey])}
+                            src={URL.createObjectURL(images[imageKey] as File)}
                             alt="Car"
                           />
                         )}
@@ -134,7 +268,7 @@ const AddCar = () => {
           <div className="space-y-1">
             <label className="flex items-center text-sm font-medium">
               <DollarSign className="w-5 h-5 mr-2 text-amber-500" />
-              Price
+              Price (per day)
             </label>
             <input
               type="number"
@@ -187,9 +321,17 @@ const AddCar = () => {
 
           <button
             type="submit"
-            className="w-full bg-amber-500 hover:bg-amber-600 text-black font-bold py-3 px-4 rounded-md transition duration-200"
+            className="w-full bg-amber-500 hover:bg-amber-600 text-black font-bold py-3 px-4 rounded-md transition duration-200 flex items-center justify-center"
+            disabled={loading}
           >
-            Submit Listing
+            {loading ? (
+              <>
+                <Loader className="w-5 h-5 mr-2 animate-spin" />
+                Processing...
+              </>
+            ) : (
+              "Submit Listing"
+            )}
           </button>
         </form>
       </div>
