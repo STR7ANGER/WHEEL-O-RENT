@@ -72,26 +72,26 @@ const Navbar = () => {
 
       {/* Navigation Links */}
       <div className="flex items-center gap-6">
-        <a
-          href="/booking"
+        <div
+          onClick={() => navigate("/booking")}
           className="hover:text-gray-300 transition-colors duration-200 font-medium"
         >
           Booking
-        </a>
-        <a
-          href="/add"
+        </div>
+        <div
+          onClick={() => navigate("/add")}
           className="hover:text-gray-300 transition-colors duration-200 font-medium"
         >
           Listings
-        </a>
+        </div>
 
         {isAuthenticated ? (
           <div className="relative" ref={menuRef}>
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="flex items-center gap-2 p-2 rounded-full bg-indigo-600 hover:bg-indigo-700 transition-colors"
+              className="flex items-center gap-2 p-2 rounded-full bg-amber-600 hover:bg-indigo-700 transition-colors"
             >
-              <div className="w-8 h-8 rounded-full bg-indigo-800 flex items-center justify-center text-white font-medium">
+              <div className="w-8 h-8 rounded-full bg-amber-800 flex items-center justify-center text-white font-medium">
                 {user?.name?.charAt(0).toUpperCase() || "U"}
               </div>
             </button>
@@ -103,20 +103,24 @@ const Navbar = () => {
                   <div className="font-medium text-white">{user?.name}</div>
                   <div className="text-xs text-gray-400">{user?.email}</div>
                 </div>
-                <a
-                  href="/booking"
+                <div
                   className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-800"
-                  onClick={() => setIsMenuOpen(false)}
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    navigate("/mybooking");
+                  }}
                 >
                   My Bookings
-                </a>
-                <a
-                  href="/add"
+                </div>
+                <div
                   className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-800"
-                  onClick={() => setIsMenuOpen(false)}
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    navigate("/mylisting");
+                  }}
                 >
                   My Listings
-                </a>
+                </div>
                 <button
                   onClick={handleLogout}
                   className="block w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-gray-800"

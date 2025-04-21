@@ -84,7 +84,7 @@ const App: React.FC = () => {
                 }
               />
               <Route
-                path="/mylistings"
+                path="/mylisting"
                 element={
                   <ProtectedRoute>
                     <MyListings />

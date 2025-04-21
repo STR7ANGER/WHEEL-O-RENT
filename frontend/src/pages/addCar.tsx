@@ -166,7 +166,7 @@ const AddCar = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center py-12 px-4 relative">
+    <div className="min-h-screen bg-black flex items-center justify-center py-32 px-4 relative">
       {/* RetroGrid as background */}
       <div className="absolute inset-0 z-0">
         <RetroGrid />

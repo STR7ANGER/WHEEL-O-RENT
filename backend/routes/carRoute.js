@@ -1,5 +1,5 @@
 import express from "express";
-import { addCar, allCar } from "../controllers/carController.js";
+import { addCar, allCar ,getCarsId} from "../controllers/carController.js";
 import upload from "../middleware/upload.js";
 
 const router = express.Router();
@@ -17,5 +17,6 @@ router.post("/add", carImageUpload, addCar);
 
 // Other routes
 router.get("/all", allCar);
+router.post("/carid",getCarsId);
 
 export default router;

@@ -1,5 +1,6 @@
 // src/components/BookingCard.tsx
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   X,
   Star,
@@ -37,6 +38,7 @@ const BookingCard: React.FC<BookingCardProps> = ({
 
   // Calculate total price
   const totalPrice = car.price * duration;
+  const nav = useNavigate();
 
   // Calculate end date and time based on start date, time and duration
   const calculateEndDateTime = () => {
@@ -118,6 +120,7 @@ const BookingCard: React.FC<BookingCardProps> = ({
           onBookingComplete(response.data.data._id);
         }
         onClose();
+        nav('/mybookings')
       } else {
         setError(response.data.message || "Failed to create booking");
       }
@@ -136,7 +139,7 @@ const BookingCard: React.FC<BookingCardProps> = ({
   const rating = 4.5;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-md p-4">
+    <div className="fixed inset-0 z-50 pt-28 flex items-center justify-center backdrop-blur-md p-4">
       <div className="bg-black text-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-amber-500">
         <div className="relative">
           {/* Close Button */}

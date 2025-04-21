@@ -100,6 +100,36 @@ const allCar = async (req, res) => {
     }
 };
 
+// Get cars by user ID
+const getCarsId = async (req, res) => {
+    try {
+        const { userId } = req.body;
+        
+        // Validate userId parameter
+        if (!userId) {
+            return res.status(400).json({
+                success: false,
+                message: "User ID is required"
+            });
+        }
+        
+        // Find all cars matching the userId
+        const userCars = await carModel.find({ userId });
+        
+        // Return the cars with success message
+        return res.status(200).json({
+            success: true,
+            count: userCars.length,
+            data: userCars
+        });
+    } catch (error) {
+        console.error("Error fetching user cars:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Failed to fetch user cars",
+            error: error.message
+        });
+    }
+};
 
-
-export { addCar, allCar };
+export { addCar, allCar, getCarsId };
