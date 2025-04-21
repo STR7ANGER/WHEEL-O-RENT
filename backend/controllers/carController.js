@@ -100,56 +100,6 @@ const allCar = async (req, res) => {
     }
 };
 
-const getCar = async (req, res) => {
-    try {
-        const { id, category, location } = req.body;
-        
-        let query = {};
-        
-        // Build query based on provided parameters
-        if (id) {
-            query._id = id;
-        }
-        
-        if (category) {
-            query.category = category;
-        }
-        
-        if (location) {
-            query.location = location;
-        }
-        
-        // If no valid query parameters, return error
-        if (Object.keys(query).length === 0) {
-            return res.status(400).json({
-                success: false,
-                message: "Please provide id, category, or location for filtering"
-            });
-        }
-        
-        // Find cars that match the query
-        const cars = await carModel.find(query);
-        
-        if (cars.length === 0) {
-            return res.status(404).json({
-                success: false,
-                message: "No cars found with given criteria"
-            });
-        }
-        
-        return res.status(200).json({
-            success: true,
-            count: cars.length,
-            data: cars
-        });
-    } catch (error) {
-        console.error("Error fetching car:", error);
-        return res.status(500).json({
-            success: false,
-            message: "Failed to fetch car",
-            error: error.message
-        });
-    }
-};
 
-export { addCar, allCar, getCar };
+
+export { addCar, allCar };

@@ -1,13 +1,22 @@
-import React from 'react'
-import { BrowserRouter, Routes, Route, Navigate, useLocation, Location } from 'react-router-dom'
-import Navbar from "./components/navbar"
-import Footer from "./components/footer"
-import Home from "./components/home"
-import Booking from "./pages/booking"
-import AddCar from "./pages/addCar"
-import Login from "./pages/login"
-import SignUp from "./pages/signUp"
-import { AuthProvider } from './context/authContext'
+import React, { ReactNode } from "react";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+  Location,
+} from "react-router-dom";
+import Navbar from "./components/navbar";
+import Footer from "./components/footer";
+import Home from "./components/home";
+import Booking from "./pages/booking";
+import AddCar from "./pages/addCar";
+import Login from "./pages/login";
+import SignUp from "./pages/signUp";
+import { AuthProvider } from "./context/authContext";
+import MyBookings from "./pages/MyBookings";
+import MyListings from "./pages/MyListings";
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -19,15 +28,21 @@ interface LocationState {
 
 // ProtectedRoute component to handle authentication
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const isAuthenticated = localStorage.getItem('token') // Replace with your auth check
-  const location = useLocation()
-  
+  const isAuthenticated = localStorage.getItem("token");
+  const location = useLocation();
+
   if (!isAuthenticated) {
-    return <Navigate to="/login" state={{ from: location } as LocationState} replace />
+    return (
+      <Navigate
+        to="/login"
+        state={{ from: location } as LocationState}
+        replace
+      />
+    );
   }
-  
-  return <>{children}</>
-}
+
+  return <>{children}</>;
+};
 
 const App: React.FC = () => {
   return (
@@ -42,25 +57,41 @@ const App: React.FC = () => {
               <Route path="/home" element={<Home />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<SignUp />} />
-              
+
               {/* Private Routes */}
-              <Route 
-                path="/booking" 
+              <Route
+                path="/booking"
                 element={
                   <ProtectedRoute>
                     <Booking />
                   </ProtectedRoute>
-                } 
+                }
               />
-              <Route 
-                path="/add" 
+              <Route
+                path="/add"
                 element={
                   <ProtectedRoute>
                     <AddCar />
                   </ProtectedRoute>
-                } 
+                }
               />
-              
+              <Route
+                path="/mybooking"
+                element={
+                  <ProtectedRoute>
+                    <MyBookings />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/mylistings"
+                element={
+                  <ProtectedRoute>
+                    <MyListings />
+                  </ProtectedRoute>
+                }
+              />
+
               {/* Catch all route - redirect to home */}
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
@@ -69,7 +100,7 @@ const App: React.FC = () => {
         </div>
       </BrowserRouter>
     </AuthProvider>
-  )
-}
+  );
+};
 
-export default App
+export default App;

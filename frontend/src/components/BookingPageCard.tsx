@@ -1,7 +1,15 @@
+// src/components/BookingPageCard.tsx
+import React from 'react';
 import { MagicCard } from "./magicui/magic-card";
-import { MapPin, Clock, Car } from 'lucide-react';
+import { MapPin, Clock } from 'lucide-react';
+import { Car } from '../types/car';
 
-const BookingPageCard = ({ car, onClick }) => {
+interface BookingPageCardProps {
+  car: Car;
+  onClick: () => void;
+}
+
+const BookingPageCard: React.FC<BookingPageCardProps> = ({ car, onClick }) => {
   return (
     <MagicCard 
       className="relative overflow-hidden rounded-xl cursor-pointer transition-all duration-300 hover:shadow-lg border border-gray-800 bg-gray-900 h-full flex flex-col"
@@ -9,7 +17,7 @@ const BookingPageCard = ({ car, onClick }) => {
     >
       <div className="aspect-video w-full overflow-hidden">
         <img 
-          src={car.image} 
+          src={car.image[0]} 
           alt={car.name}
           className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
         />
@@ -19,7 +27,7 @@ const BookingPageCard = ({ car, onClick }) => {
         <div className="flex justify-between items-start mb-2">
           <h3 className="text-lg font-bold text-white truncate mr-2">{car.name}</h3>
           <span className="bg-amber-500 text-black text-xs font-medium px-2.5 py-0.5 rounded whitespace-nowrap">
-            {car.type}
+            {car.category}
           </span>
         </div>
         
